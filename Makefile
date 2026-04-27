@@ -110,6 +110,7 @@ SRC =	src/main.c	\
 TEST_CRIT	=	\
 
 SRC_CRIT = $(SRC)
+CC = gcc
 
 OBJ = 	$(SRC:.c=.o)
 
@@ -135,10 +136,18 @@ CURRENT_FILE = $(CURRENT_FILES)
 	@echo -e  "($(CURRENT_FILE)/$(FILE_AMOUNT))$(BEGINL)"
 
 $(NAME): lib_build	$(OBJ)
-	@gcc -o $(NAME) $(OBJ) $(LDFLAGS)
+	@$(CC) -o $(NAME) $(OBJ) $(LDFLAGS)
 	@echo -e "$(CLEARL)$(GREEN)✓ Compiled $(NAME)$(RESET)$(COL_END)"
 
 all:	$(NAME)
+
+DESTDIR := build
+
+install:
+	@install -Dm755 $(NAME) $(DESTDIR)/$(NAME)
+	@mkdir -p $(DESTDIR)/assets
+	@cp -a assets/. $(DESTDIR)/assets/
+	@echo -e "$(CLEARL)$(GREEN)✓ Installed to $(DESTDIR)$(RESET)$(COL_END)"
 
 lib_build:
 	@for i in $(LIBS); do $(MAKE) -C $$i ; done
@@ -163,13 +172,13 @@ re: fclean all
 
 debug: CFLAGS += -g3
 debug: lib_build $(OBJ)
-	@gcc -o $(NAME) $(OBJ) $(LDFLAGS) -g3
+	@$(CC) -o $(NAME) $(OBJ) $(LDFLAGS) -g3
 	@echo -e "$(CLEARL)$(YELLOW)⚙️  Debug Mode$(RESET)"
 
 gprof: CFLAGS += -pg
 gprof: lib_build $(OBJ)
 	@rm -f gmon.out gprof.txt
-	@gcc -o $(NAME) $(OBJ) $(LDFLAGS) -pg
+	@$(CC) -o $(NAME) $(OBJ) $(LDFLAGS) -pg
 	@echo -e "$(CLEARL)$(YELLOW)⚙️  Gprof Mode$(RESET)"
 #	@./$(NAME)
 #	@gprof $(NAME) gmon.out > gprof.txt
@@ -177,13 +186,13 @@ gprof: lib_build $(OBJ)
 
 perf: CFLAGS += -O3
 perf: lib_build $(OBJ)
-	@gcc -o $(NAME) $(OBJ) $(LDFLAGS) -O3
+	@$(CC) -o $(NAME) $(OBJ) $(LDFLAGS) -O3
 	@echo -e "$(CLEARL)$(BLUE)⚙️  Performance Mode$(RESET)"
 	@bash -c "time ./$(NAME)"
 
 tests_run:
 	@for i in $(LIBS); do $(MAKE) -C $$i tests_run; done
-#	@gcc -o unit-tests $(SRC_CRIT) $(TEST_CRIT) $(CFLAGS) $(CRITFLAGS)
+#	@$(CC) -o unit-tests $(SRC_CRIT) $(TEST_CRIT) $(CFLAGS) $(CRITFLAGS)
 #	@echo -e [$(GREEN)Launch $(NAME) tests$(RESET)]
 #	@./unit-tests
 

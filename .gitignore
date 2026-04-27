@@ -76,3 +76,8 @@ dkms.conf
 
 # Coding style
 *.log
+
+# env
+.direnv
+result
+.envrc
